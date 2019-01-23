@@ -3,17 +3,17 @@ PROCESSOR = LPC17xx
 #BOARD = AZTEEGX5MINI
 #BOARD = SMOOTHIEBOARD
 #BOARD = REARM
-#BOARD = AZSMZ
+BOARD = AZSMZ
 #BOARD = MKSBASE
-BOARD = MBED
-BUILD_DIR = $(PWD)/build
+#BOARD = MBED
+BUILD_DIR = ./build
 
 #BUILD = Debug
 BUILD = Release
 
 #compile in Ethernet Networking?
-NETWORKING = true
-#NETWORKING = false
+#NETWORKING = true
+NETWORKING = false
 
 
 #enable DFU
@@ -267,8 +267,6 @@ $(BUILD_DIR)/$(OUTPUT_NAME).elf: $(BUILD_DIR)/core.a $(RRF_OBJS)
 	$(V)$(LD) -L$(BUILD_DIR)/ -Os --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--warn-section-align -Wl,--gc-sections -Wl,--fatal-warnings -march=armv7-m -mcpu=cortex-m3 -T$(LINKER_SCRIPT) -Wl,-Map,$(OUTPUT_NAME).map -o $(OUTPUT_NAME).elf  -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-unresolved-symbols -Wl,--start-group $(BUILD_DIR)/$(CORE)/cores/arduino/syscalls.o $(BUILD_DIR)/core.a $(RRF_OBJS) -Wl,--end-group -lm
 	$(V)$(OBJCOPY) --strip-unneeded -O binary $(OUTPUT_NAME).elf $(OUTPUT_NAME).bin
 	$(V)$(SIZE) $(OUTPUT_NAME).elf
-
-	@./staticMemStats.sh 
 
 $(BUILD_DIR)/%.o: %.c
 	@echo "[$(CC): Compiling $<]"

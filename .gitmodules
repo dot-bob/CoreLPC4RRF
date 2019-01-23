@@ -1,0 +1,6 @@
+[submodule "RepRapFirmware"]
+	path = RepRapFirmware
+	url = https://github.com/dot-bob/RepRapFirmware.git
+[submodule "RRFLibraries"]
+	path = RRFLibraries
+	url = https://github.com/dot-bob/RRFLibraries.git
