@@ -3,8 +3,8 @@ PROCESSOR = LPC17xx
 #BOARD = AZTEEGX5MINI
 #BOARD = SMOOTHIEBOARD
 #BOARD = REARM
-BOARD = AZSMZ
-#BOARD = MKSBASE
+#BOARD = AZSMZ
+BOARD = MKSSBASE
 #BOARD = MBED
 BUILD_DIR = ./build
 
@@ -12,8 +12,8 @@ BUILD_DIR = ./build
 BUILD = Release
 
 #compile in Ethernet Networking?
-#NETWORKING = true
-NETWORKING = false
+NETWORKING = true
+#NETWORKING = false
 
 
 #enable DFU
@@ -63,7 +63,7 @@ $(info Building Network Support: $(NETWORKING))
 ifeq ($(BUILD),Debug)
 	DEBUG_FLAGS = -Og -g -gdwarf-3
 else
-	DEBUG_FLAGS = -Os#-O2
+	DEBUG_FLAGS = -O2
 endif
 	
 
@@ -207,12 +207,12 @@ RRF_SRC_DIRS += LPC LPC/MCP4461
 
 #biuld in LCD Support? only when networking is false
 #networking support?
-ifeq ($(NETWORKING), true)
+#ifeq ($(NETWORKING), true)
 	RRF_SRC_DIRS += Networking Networking/RTOSPlusTCPEthernet
-else
-	RRF_SRC_DIRS += LPC/NoNetwork
+#else
+#	RRF_SRC_DIRS += LPC/NoNetwork
 	RRF_SRC_DIRS += Display Display/ST7920
-endif
+#endif
 
 #Find the c and cpp source files
 RRF_SRC = $(RRF_SRC_BASE) $(addprefix $(RRF_SRC_BASE)/, $(RRF_SRC_DIRS))

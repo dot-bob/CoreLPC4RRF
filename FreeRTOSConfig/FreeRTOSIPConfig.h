@@ -38,8 +38,8 @@
 
 
 /*SD:: LPC17xx Driver defines*/
-#define configNUM_RX_DESCRIPTORS  (4)
-#define configNUM_TX_DESCRIPTORS  (3)
+#define configNUM_RX_DESCRIPTORS  (2)
+#define configNUM_TX_DESCRIPTORS  (2)
 #define NETWORK_IRQHandler ENET_IRQHandler
 
 
@@ -61,7 +61,7 @@
 
 //#define ipconfigUSE_TCP_WIN            ( 1 )
 //SD:: disable sliding window to save ram
-#define ipconfigUSE_TCP_WIN            ( 0 )
+#define ipconfigUSE_TCP_WIN            ( 1 )
 
 //SD:: Enable the DHCP Hook so we can control if DHCP starts ot not using the RRF config settings, otherwise it will always start if DHCP is set to 1
 #define ipconfigUSE_DHCP_HOOK           ( 1 )
@@ -77,8 +77,8 @@
  be divisible by 8. */
 //#define ipconfigNETWORK_MTU        1200
 //SD::
-#define ipconfigCAN_FRAGMENT_OUTGOING_PACKETS    ( 0 )
-#define ipconfigNETWORK_MTU                      ( 608 ) // 586 Minimum to use DHCP
+#define ipconfigCAN_FRAGMENT_OUTGOING_PACKETS    ( 1 )
+#define ipconfigNETWORK_MTU                      ( 588 ) // 586 Minimum to use DHCP
 
 
 //MTU
@@ -123,12 +123,12 @@
  maximum size.  Define the size of Rx buffer for TCP sockets. */
 //#define ipconfigTCP_RX_BUFFER_LENGTH            ( 1000 )
 //SD::
-#define ipconfigTCP_RX_BUFFER_LENGTH            ( 2 * ipconfigTCP_MSS  )
+#define ipconfigTCP_RX_BUFFER_LENGTH            (1 * ipconfigTCP_MSS  )
 
 /* Define the size of Tx buffer for TCP sockets. */
 //#define ipconfigTCP_TX_BUFFER_LENGTH            ( 1000 )
 //SD::
-#define ipconfigTCP_TX_BUFFER_LENGTH            ( 2 * ipconfigTCP_MSS )
+#define ipconfigTCP_TX_BUFFER_LENGTH            ( 1 * ipconfigTCP_MSS )
 
 /* Define the size of the pool of TCP window descriptors.  On the average, each
  TCP socket will use up to 2 x 6 descriptors, meaning that it can have 2 x 6

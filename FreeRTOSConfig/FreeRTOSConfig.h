@@ -64,7 +64,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_TICK_HOOK						1
 #define configCPU_CLOCK_HZ						( SystemCoreClock )
 #define configTICK_RATE_HZ						( 1000 )
-#define configMAX_PRIORITIES					( 5 )
+#define configMAX_PRIORITIES					( 3 )
 #define configMINIMAL_STACK_SIZE				( ( unsigned short ) 120 )
 
 #define configAPPLICATION_ALLOCATED_HEAP        ( 1 )
@@ -77,8 +77,8 @@ extern uint32_t SystemCoreClock;
 #define configUSE_16_BIT_TICKS					0
 #define configIDLE_SHOULD_YIELD					1
 #define configUSE_MUTEXES						1
-#define configQUEUE_REGISTRY_SIZE				8
-#define configCHECK_FOR_STACK_OVERFLOW			2
+#define configQUEUE_REGISTRY_SIZE				0
+#define configCHECK_FOR_STACK_OVERFLOW			0
 #define configUSE_RECURSIVE_MUTEXES				1
 #define configUSE_MALLOC_FAILED_HOOK			1
 #define configUSE_APPLICATION_TASK_TAG			0
@@ -130,7 +130,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay				1
 #define INCLUDE_eTaskGetState			1
 #define INCLUDE_xTimerPendFunctionCall	0
-#define INCLUDE_uxTaskGetStackHighWaterMark	1
+#define INCLUDE_uxTaskGetStackHighWaterMark	0
 #define INCLUDE_xQueueGetMutexHolder	1
 #define INCLUDE_xTaskGetSchedulerState    1
 
