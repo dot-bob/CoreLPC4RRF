@@ -1,3 +1,8 @@
+# Install
+To install rename the desired variant to firmware.bin and copy to the root of the onboard sd card and reboot.
+
+To install over the web interface upload under Settings -> General -> "Upload File" then issue the command M997 from the G-Code Console
+
 # **Important Changes**
 
 [8 Jan 19]
