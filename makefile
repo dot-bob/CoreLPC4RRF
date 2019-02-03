@@ -4,7 +4,8 @@ PROCESSOR = LPC17xx
 #BOARD = SMOOTHIEBOARD
 #BOARD = REARM
 #BOARD = AZSMZ
-BOARD = MKSSBASE
+#BOARD = MKSSBASE
+BOARD = BIQUSKR
 #BOARD = MBED
 BUILD_DIR = ./build
 
@@ -12,9 +13,8 @@ BUILD_DIR = ./build
 BUILD = Release
 
 #compile in Ethernet Networking?
-NETWORKING = true
-#NETWORKING = false
-
+#NETWORKING = true
+NETWORKING = false
 
 #enable DFU
 USE_DFU = true
@@ -63,7 +63,7 @@ $(info Building Network Support: $(NETWORKING))
 ifeq ($(BUILD),Debug)
 	DEBUG_FLAGS = -Og -g -gdwarf-3
 else
-	DEBUG_FLAGS = -O2
+	DEBUG_FLAGS = -Os#-O2
 endif
 	
 
@@ -205,14 +205,15 @@ RRF_SRC_DIRS += Storage Tools Libraries/Fatfs Libraries/Fatfs/port/lpc Libraries
 RRF_SRC_DIRS += Heating/Sensors Fans ObjectModel
 RRF_SRC_DIRS += LPC LPC/MCP4461
 
-#biuld in LCD Support? only when networking is false
 #networking support?
-#ifeq ($(NETWORKING), true)
+ifeq ($(NETWORKING), true)
 	RRF_SRC_DIRS += Networking Networking/RTOSPlusTCPEthernet
-#else
-#	RRF_SRC_DIRS += LPC/NoNetwork
-	RRF_SRC_DIRS += Display Display/ST7920
-#endif
+else
+	RRF_SRC_DIRS += LPC/NoNetwork
+endif
+
+RRF_SRC_DIRS += Display Display/ST7920
+	
 
 #Find the c and cpp source files
 RRF_SRC = $(RRF_SRC_BASE) $(addprefix $(RRF_SRC_BASE)/, $(RRF_SRC_DIRS))
