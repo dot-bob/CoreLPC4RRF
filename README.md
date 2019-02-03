@@ -1,3 +1,15 @@
+# dot-bob's LPC RepRapFirmware
+
+This is my personal fork of the RepRapFirmware for LPC1768/9 micro controllers obtained from here: https://github.com/sdavi/CoreLPC4RRF.
+
+I have changed the make file and included files needed to build using visual studio code.
+
+To build this firmware clone this repository with submodules "git clone--recurse-submodules https://github.com/dot-bob/CoreLPC4RRF.git".
+Under visual studio code install the arm toolchain extension approprate for your platform (i.e. for windows windows-arm-none-eabi) and reload.
+Open the repository folder and choose the approprate build task.
+
+For install instructions look here: https://github.com/dot-bob/CoreLPC4RRF/tree/rrflpc-bob/EdgeRelease
+
 # CoreLPC for RepRapFirmware
 
 This is an experimental port of DC42's [CoreNG](https://github.com/dc42/CoreNG) for LPC1768/LPC1769 based boards that is required build the [LPC Port of RepRapFirmware v2 RTOS](https://github.com/sdavi/RepRapFirmware/tree/v2-dev-lpc) (forked from DC42s [RepRapFirmware Version 2 (RTOS)](https://github.com/dc42/RepRapFirmware/tree/v2-dev)). This project also contains [FreeRTOS](https://www.freertos.org/) and [FreeRTOS+TCP](https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/index.html) (with additions to work with RepRapFirmware and a ported 17xx networking driver based on the FreeRTOS+TCP 18xx driver).
