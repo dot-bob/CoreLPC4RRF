@@ -4,7 +4,7 @@ This is my personal fork of the RepRapFirmware for LPC1768/9 micro controllers o
 
 I have changed the make file and included files needed to build using visual studio code.
 
-To build this firmware clone this repository with submodules "git clone--recurse-submodules https://github.com/dot-bob/CoreLPC4RRF.git".
+To build this firmware clone this repository with submodules "git clone --recurse-submodules https://github.com/dot-bob/CoreLPC4RRF.git".
 Under visual studio code install the arm toolchain extension approprate for your platform (i.e. for windows windows-arm-none-eabi) and reload.
 Open the repository folder and choose the approprate build task.
 
