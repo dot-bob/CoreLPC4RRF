@@ -3,9 +3,9 @@ PROCESSOR = LPC17xx
 
 #Enable when debugging on MBED to swap serial and USB 
 #and select direct ld script
-MBED = true
+MBED = false
 
-BUILD_DIR = $(PWD)/build
+BUILD_DIR = ./build
 
 #BUILD = Debug
 BUILD = Release
@@ -23,7 +23,7 @@ USE_DFU = true
 #USE_DFU = false
 
 #Comment out to show compilation commands (verbose)
-V=@
+#V=@
 
 
 ## Cross-compilation commands 
@@ -278,7 +278,7 @@ $(BUILD_DIR)/$(OUTPUT_NAME).elf: $(BUILD_DIR)/core.a $(RRF_OBJS)
 	$(V)$(OBJCOPY) --strip-unneeded -O binary $(OUTPUT_NAME).elf $(OUTPUT_NAME).bin
 	$(V)$(SIZE) $(OUTPUT_NAME).elf
 
-	@./staticMemStats.sh 
+#	@./staticMemStats.sh 
 
 $(BUILD_DIR)/%.o: %.c
 	@/bin/echo -n "." #@echo "[$(CC): Compiling $<]"
