@@ -3,7 +3,7 @@ PROCESSOR = LPC17xx
 
 #Enable when debugging on MBED to swap serial and USB 
 #and select direct ld script
-MBED = true
+MBED = false
 
 BUILD_DIR = ./build
 
