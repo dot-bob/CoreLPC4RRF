@@ -41,88 +41,54 @@ Errors and omissions should be reported to codelibraries@exploreembedded.com
 #include "board.h"
 #include "core.h"
 
-
-typedef void (*interruptCB)(CallbackParameter);
-
 struct InterruptCallback
 {
-    interruptCB func;
-    void *param;
+    StandardCallbackFunction func;
+    CallbackParameter param;
+    
     InterruptCallback() : func(nullptr) { }
-
-};
-
-
-struct CallbackEntry{
-    InterruptCallback intCallback;
 };
 
 
 //support only 3 callbacks to save memory
-static CallbackEntry callbacks[MaxExtIntEntries] __attribute__((section ("AHBSRAM0")));
+static InterruptCallback callbacks[MaxExtIntEntries] __attribute__((section ("AHBSRAM0")));
 Pin ExternalInterruptPins[MaxExtIntEntries] = {NoPin, NoPin, NoPin};
 
 
 //Function from WInterrupts from RRF.
 
-// Get the number of the highest bit that is set in a 32-bit word. Returns 0 if no bit set (same as if lowest bit is set).
-// This needs to be fast. Hopefully the ARM conditional instructions will be used to advantage here.
-static unsigned int GetHighestBit(uint32_t bits)
-{
-    unsigned int bitNum = (bits >= 0x00010000) ? 16 : 0;
-    if ((bits >> bitNum) >= 0x0100u)
-    {
-        bitNum += 8;
-    }
-    if ((bits >> bitNum) >= 0x0010u)
-    {
-        bitNum += 4;
-    }
-    if ((bits >> bitNum) >= 0x0004u)
-    {
-        bitNum += 2;
-    }
-    if ((bits >> bitNum) >= 0x0002u)
-    {
-        bitNum += 1;
-    }
-    return bitNum;
-}
 
-
-bool attachInterrupt(Pin pin, void (*callback)(CallbackParameter), enum InterruptMode mode, void *param)
+bool attachInterrupt(Pin pin, StandardCallbackFunction callback, enum InterruptMode mode, CallbackParameter param)
 {
-    
-    
     //Port 0 and Port 2 can provide a single interrupt for any combination of port pins.
     //GPIO INTS call EINT3 handler!!
 
-    uint8_t portNumber;
-    uint8_t var_pinNumber_u8;
-    
-    portNumber =  (pin>>5);  //Divide the pin number by 32 go get the PORT number
-    var_pinNumber_u8  =   pin & 0x1f;  //lower 5-bits contains the bit number of a 32bit port
-
+    const uint8_t portNumber = (pin>>5);  //Divide the pin number by 32 go get the PORT number
+    const uint8_t var_pinNumber_u8 = pin & 0x1f;  //lower 5-bits contains the bit number of a 32bit port
 
     // Set callback function and parameter
-
     size_t slot = MaxExtIntEntries;
     for(size_t i=0; i<MaxExtIntEntries; i++)
     {
-        if(ExternalInterruptPins[i] == pin){
-            slot = i; //found slot
+        //find a free slot
+        if(ExternalInterruptPins[i] == NoPin){
+            slot = i; //found a free slot
             break;
         }
     }
+    
+    if(slot == MaxExtIntEntries) return false; // No Free External Int slots available.
 
     //ensure pin is on Port 0 or Port 2
     //Each port pin can be programmed to generate an interrupt on a rising edge, a falling edge, or both.
-    if(slot < MaxExtIntEntries && (portNumber == 0 || portNumber == 2) )
+    if(portNumber == 0 || portNumber == 2 )
     {
         const irqflags_t flags = cpu_irq_save();
 
-        callbacks[slot].intCallback.func = callback;
-        callbacks[slot].intCallback.param = param;
+        ExternalInterruptPins[slot] = pin; // add the pin to the array
+
+        callbacks[slot].func = callback;
+        callbacks[slot].param = param;
         
         NVIC_EnableIRQ(EINT3_IRQn); // GPIO interrupts on P0 and P2 trigger EINT3 handler
 
@@ -159,6 +125,7 @@ bool attachInterrupt(Pin pin, void (*callback)(CallbackParameter), enum Interrup
                 }
 
                 break;
+                
             case INTERRUPT_MODE_CHANGE:
                 //Rising and Falling
                 if(portNumber == 0){
@@ -170,8 +137,8 @@ bool attachInterrupt(Pin pin, void (*callback)(CallbackParameter), enum Interrup
                     util_BitSet(LPC_GPIOINT->IO2IntEnR, var_pinNumber_u8); //Rising
                 }
 
-
                 break;
+                
             default:
                 break;
                 
@@ -179,11 +146,11 @@ bool attachInterrupt(Pin pin, void (*callback)(CallbackParameter), enum Interrup
 
         cpu_irq_restore(flags);
         
-    } else {
-        
+    }
+    else
+    {
         return false; // no interrupts avail on this pin
     }
-
     
     return true;
 }
@@ -191,13 +158,21 @@ bool attachInterrupt(Pin pin, void (*callback)(CallbackParameter), enum Interrup
 
 void detachInterrupt(Pin pin){
  
-    uint8_t portNumber;
-    uint8_t var_pinNumber_u8;
-    
-    portNumber =  (pin>>5);  //Divide the pin number by 32 go get the PORT number
-    var_pinNumber_u8  =   pin & 0x1f;  //lower 5-bits contains the bit number of a 32bit port
+    const uint8_t portNumber =  (pin>>5);  //Divide the pin number by 32 go get the PORT number
+    const uint8_t var_pinNumber_u8  =   pin & 0x1f;  //lower 5-bits contains the bit number of a 32bit port
 
-    //clear Rise and Fall
+    const irqflags_t flags = cpu_irq_save();
+
+    for(size_t i=0; i<MaxExtIntEntries; i++)
+    {
+        if(ExternalInterruptPins[i] == pin){
+            ExternalInterruptPins[i] = NoPin; //remove the pin from the array
+
+            break;
+        }
+    }
+    
+    //clear Rise and Fall interrupt for Pin
     if(portNumber == 0){
         util_BitClear(LPC_GPIOINT->IO0IntEnF, var_pinNumber_u8); //Falling
         util_BitClear(LPC_GPIOINT->IO0IntEnR, var_pinNumber_u8); //Rising
@@ -206,8 +181,9 @@ void detachInterrupt(Pin pin){
         util_BitClear(LPC_GPIOINT->IO2IntEnF, var_pinNumber_u8); //Falling
         util_BitClear(LPC_GPIOINT->IO2IntEnR, var_pinNumber_u8); //Rising
     }
-
     
+    cpu_irq_restore(flags);
+
     
 }
 
@@ -246,11 +222,11 @@ extern "C" void EINT3_IRQHandler(void)
     //port 0
     while (isr0 != 0)
     {
-        const unsigned int pos0 = GetHighestBit(isr0);
+        const unsigned int pos0 = LowestSetBitNumber(isr0);        // only one bit should be set
         LPC_GPIOINT->IO0IntClr |= (1 << pos0); // clear the status
         
         //Find the slot for this pin
-        const Pin pin= (Pin)(pos0);// port 0, this is just the pin number
+        const Pin pin= (Pin)(pos0);// Since this is on port 0, this is just the pin number
         size_t slot = MaxExtIntEntries;
         for(size_t i=0; i<MaxExtIntEntries; i++)
         {
@@ -260,9 +236,9 @@ extern "C" void EINT3_IRQHandler(void)
             }
         }
         
-        if(slot < MaxExtIntEntries && callbacks[slot].intCallback.func != NULL)
+        if(slot < MaxExtIntEntries && callbacks[slot].func != NULL)
         {
-            callbacks[slot].intCallback.func(callbacks[slot].intCallback.param);
+            callbacks[slot].func(callbacks[slot].param);
 
         }
 
@@ -271,7 +247,7 @@ extern "C" void EINT3_IRQHandler(void)
     //port 2
     while (isr2 != 0)
     {
-        const unsigned int pos2 = GetHighestBit(isr2);
+        const unsigned int pos2 = LowestSetBitNumber(isr2);        // only one bit should be set
         LPC_GPIOINT->IO2IntClr |= (1 << pos2); // clear the status
 
         //Find the slot for this pin
@@ -286,9 +262,9 @@ extern "C" void EINT3_IRQHandler(void)
         }
 
         
-        if(slot < MaxExtIntEntries && callbacks[slot].intCallback.func != NULL)
+        if(slot < MaxExtIntEntries && callbacks[slot].func != NULL)
         {
-            callbacks[slot].intCallback.func(callbacks[slot].intCallback.param);
+            callbacks[slot].func(callbacks[slot].param);
         }
 
 

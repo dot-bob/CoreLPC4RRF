@@ -584,8 +584,6 @@ void AnalogOut(Pin pin, float ulValue, uint16_t freq)
     const uint8_t port = (pin >> 5);
     const uint32_t portPinPosition = 1 << (pin & 0x1f);
 
-    
-    //if (TimerPWMPinsArray[pin] != 0)
     if(port <= 4 && (pinsOnATimer[port] & portPinPosition))
     {
         //pin is defined as PWM on Timer
@@ -610,24 +608,39 @@ void AnalogOut(Pin pin, float ulValue, uint16_t freq)
 
 
 //get the frequencies of the pwm and timers to report in M122
-void GetTimerInfo( uint16_t freqs[4] ){
-    freqs[0] = PWMFreq; //Hardware PWM
-    //Timer PWMs
-    for(int i=0; i<numTimerChannels; i++){
-        if( (timerInitialised & (1<<i)) )
-        {
-            freqs[i+1] = TimerPWMs[i].frequency;
-        }
-        else
-        {
-            freqs[i+1] = 0;
-        }
-        
-    }
+void GetTimerInfo( LPCPWMInfo *pwmInfo )
+{
     
+    pwmInfo->hwPWMFreq = PWMFreq; //Hardware PWM
+    //Timer PWMs
+    pwmInfo->tim1Freq = TimerPWMs[0].frequency;
+    pwmInfo->tim2Freq = TimerPWMs[1].frequency;
+    pwmInfo->tim3Freq = TimerPWMs[2].frequency;
+}
+
+ // Return true if this pin exists and can do PWM
+bool IsPwmCapable(Pin pin)
+{
+
+    const uint8_t port = (pin >> 5);
+    const uint32_t portPinPosition = 1 << (pin & 0x1f);
+    
+    //check if pin is configured to use a timer for pwm
+    if(port <= 4 && (pinsOnATimer[port] & portPinPosition)) return true;
+
+    //check if pin is HW PWM capable
+    if (pin < ARRAY_SIZE(g_APinDescription) && (g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) != 0) return true;
+    
+    return false;
+
     
 }
 
+bool IsServoCapable(Pin pin)
+{
+    //TODO:: assumes it is setup as pwm correctly. we should check if the pin is configured for timer2
+    return IsPwmCapable(pin);
+}
 
 
 // End
